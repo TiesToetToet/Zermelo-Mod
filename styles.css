@@ -1,0 +1,133 @@
+.navBar,
+.swipeSchedulePage .scheduleTitle,
+.tabs .tabBar,
+.responsive .masterDetail .blueBar {
+    background-color: var(--mainColor) !important;
+}
+.form .button {
+    background: var(--mainColor) !important;
+}
+
+body,
+.daySchedule .dayTitle,
+.compactAppointmentItem,
+.appointmentDetailInfo,
+.appointmentItem,
+.appointmentItemWithOptionalSwitch,
+.menuPage,
+.weekHeader .arrowRightIcon,
+.weekHeader .arrowLeftIcon,
+.subjectSelectionMadeChoices .subjectText,
+.subjectSelectionMadeChoices .subjectTextItalic,
+.subjectSelectionMadeChoices .buttonTrue,
+.personListItem .title,
+.personListItem .teacherAdditionalRole,
+.personListItem .teacherName,
+.settingsPage,
+.weekSchedule .dayTitle,
+.swipeSchedulePage.showWeek .week,
+.appointmentChoiceItem,
+a,
+h2 {
+    color: var(--mainTextColor) !important;
+}
+.menuPage .item .icon,
+.settingsPage .item .icon {
+    color: var(--iconColor) !important;
+}
+.swipeSchedulePage .scheduleTitle .dayWeek {
+    background-color: var(--darkMainColor) !important;
+}
+
+.menuPage .item:hover,
+.menuPage .item:hover .icon,
+.settingsPage .item:hover,
+.settingsPage .item:hover .icon {
+    color: var(--mainHoverColor) !important;
+    cursor: pointer !important;
+}
+
+.compactAppointmentItem .appointmentBar,
+.appointmentItem .appointmentBar,
+.appointmentChoiceItem .appointmentBar {
+    background-color: var(--generalColor) !important;
+}
+.compactAppointmentItem .appointmentBlock,
+.appointmentChoiceItem .appointmentBlock,
+.appointmentItem .appointmentBlock {
+    border: 1px solid var(--generalColorLight) !important;
+}
+.appointmentItem.notEnrolledFixed .appointmentBlock {
+    border: 1px dashed var(--generalColorLight) !important;
+}
+
+.compactAppointmentItem.exam .appointmentBar,
+.appointmentItem.exam .appointmentBar {
+    background-color: var(--examColor) !important;
+}
+
+.appointmentItem.exam .appointmentBlock,
+.compactAppointmentItem.exam .appointmentBlock {
+    border: 1px solid var(--examColor) !important;
+}
+
+.compactAppointmentItem.activity .appointmentBar,
+.appointmentItem.activity .appointmentBar {
+    background-color: var(--activityColor) !important;
+}
+
+.compactAppointmentItem.activity .appointmentBlock,
+.appointmentItem.activity .appointmentBlock {
+    border: 1px solid var(--activityLightColor) !important;
+}
+
+.item.custom {
+    margin: 0px;
+    display: inline-block;
+    font-size: 14px;
+}
+
+.colors-list > div {
+    margin-left: 16px;
+}
+
+.colorCircle {
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+input[name="hexColor"] {
+    outline: none !important;
+    color: #000 !important;
+    display: inline-block !important;
+    cursor: text !important;
+    vertical-align: top !important;
+    padding: 15px 10px !important;
+    background: transparent !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    width: auto !important;
+    margin-bottom: auto !important;
+    margin-top: auto !important;
+    font-size: auto !important;
+}
+
+.hiddenColorPicker {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.logo {
+    width: 70% !important;
+    margin-bottom: 0px !important;
+    height: 100% !important;
+}
+.form input[type="checkbox"]:checked {
+    accent-color: var(--iconColor) !important;
+}

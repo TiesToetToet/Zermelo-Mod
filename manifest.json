@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+   
+    "name": "Zermelo Mod",
+    "version": "0.1.0",
+    "description": "Mod voor Zermelo",
+    "icons": {
+        "16": "zermelo_mod_16.png",
+        "32": "zermelo_mod_32.png",
+        "48": "zermelo_mod_48.png",
+        "128": "zermelo_mod_128.png"
+    },
+   
+    "content_scripts": [{
+      "css": ["styles.css"],
+      "js": ["content.js"],
+      "matches": ["https://*.zportal.nl/*"]
+    }],
+    "permissions": ["storage", "activeTab"],
+    "host_permissions": ["https://*.zportal.nl/*"],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "sw.js"
+    }
+   
+  }
