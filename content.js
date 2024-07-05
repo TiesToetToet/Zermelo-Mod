@@ -56,123 +56,163 @@ chrome.storage.local.get(["enabled"]).then((result) => {
 function load(modEnabled) {
   if (modEnabled) {
     function settings() {
-      chrome.storage.local.get(
-        {
-          options: {
-            // Provide default values if not already stored
-            colorMain: "#2c3e50",
-            colorGeneral: "#7b7bb3",
-            colorExam: "#e8cb22",
-            colorActivity: "#268e26",
+      addMenu();
+      
+      function addMenu() {
+        chrome.storage.local.get(
+          {
+            options: {
+              // Provide default values if not already stored
+              colorMain: "#2c3e50",
+              colorGeneral: "#7b7bb3",
+              colorExam: "#e8cb22",
+              colorActivity: "#268e26",
+            },
           },
-        },
-        function (data) {
-          const options = data.options;
-          hoverColor = adjust(colorMain, 50);
-          colorMain = options.colorMain;
-          console.log(colorMain);
-          if (getRelativeLuminance(hexToRgb(colorMain)) >= 240) {
-            iconColour = adjust(colorMain, -170);
-          } else if (getRelativeLuminance(hexToRgb(colorMain)) >= 160) {
-            iconColour = adjust(colorMain, -110);
-          } else {
-            iconColour = "#5b5b5b";
-          }
-          console.log(iconColour);
-          changeImage(iconColour, hoverColor);
-          // Mapping storage keys to element IDs and their corresponding labels
-          const idMapping = {
-            colorMain: {
-              picker: "colorPickerMain",
-              hex: "hexColorInputMain",
-              label: "colorPickerDivMain",
-            },
-            colorGeneral: {
-              picker: "colorPickerGeneral",
-              hex: "hexColorInputGeneral",
-              label: "colorPickerDivGeneral",
-            },
-            colorExam: {
-              picker: "colorPickerExam",
-              hex: "hexColorInputExam",
-              label: "colorPickerDivExam",
-            },
-            colorActivity: {
-              picker: "colorPickerActivity",
-              hex: "hexColorInputActivity",
-              label: "colorPickerDivActivity",
-            },
-          };
-
-          for (const key in options) {
-            if (idMapping[key]) {
-              const { picker, hex, label } = idMapping[key];
-              const pickerElement = document.getElementById(picker);
-              const hexElement = document.getElementById(hex);
-              const labelElement = document.querySelector(
-                `.${label} .colorCircle`
-              );
-              if (pickerElement && pickerElement.type === "color") {
-                pickerElement.value = options[key];
-              }
-              if (hexElement) {
-                hexElement.value = options[key];
-              }
-              if (labelElement) {
-                labelElement.style.backgroundColor = options[key];
+          function (data) {
+            const options = data.options;
+            hoverColor = adjust(colorMain, 50);
+            colorMain = options.colorMain;
+            console.log(colorMain);
+            if (getRelativeLuminance(hexToRgb(colorMain)) >= 240) {
+              iconColour = adjust(colorMain, -170);
+            } else if (getRelativeLuminance(hexToRgb(colorMain)) >= 160) {
+              iconColour = adjust(colorMain, -110);
+            } else {
+              iconColour = "#5b5b5b";
+            }
+            console.log(iconColour);
+            changeImage(iconColour, hoverColor);
+            // Mapping storage keys to element IDs and their corresponding labels
+            const idMapping = {
+              colorMain: {
+                picker: "colorPickerMain",
+                hex: "hexColorInputMain",
+                label: "colorPickerDivMain",
+              },
+              colorGeneral: {
+                picker: "colorPickerGeneral",
+                hex: "hexColorInputGeneral",
+                label: "colorPickerDivGeneral",
+              },
+              colorExam: {
+                picker: "colorPickerExam",
+                hex: "hexColorInputExam",
+                label: "colorPickerDivExam",
+              },
+              colorActivity: {
+                picker: "colorPickerActivity",
+                hex: "hexColorInputActivity",
+                label: "colorPickerDivActivity",
+              },
+            };
+  
+            for (const key in options) {
+              if (idMapping[key]) {
+                const { picker, hex, label } = idMapping[key];
+                const pickerElement = document.getElementById(picker);
+                const hexElement = document.getElementById(hex);
+                const labelElement = document.querySelector(
+                  `.${label} .colorCircle`
+                );
+                if (pickerElement && pickerElement.type === "color") {
+                  pickerElement.value = options[key];
+                }
+                if (hexElement) {
+                  hexElement.value = options[key];
+                }
+                if (labelElement) {
+                  labelElement.style.backgroundColor = options[key];
+                }
               }
             }
           }
-        }
-      );
+        );
 
-      var settingsPage = document.getElementsByClassName("settingsPage")[0];
-      if (settingsPage != null) {
-        // Check if an element with the class 'menuContent' already exists within 'settingsPage'
-        var menuContents = settingsPage.querySelectorAll(".menuContent");
+        var settingsPage = document.getElementsByClassName("settingsPage")[0];
+        if (settingsPage != null) {
+          // Check if an element with the class 'menuContent' already exists within 'settingsPage'
+          var menuContents = settingsPage.querySelectorAll(".menuContent");
 
-        if (menuContents.length < 2) {
-          // If no existing 'menuContent' is found, proceed to create and append the new 'div'
-          var div = document.createElement("div");
-          div.innerHTML = `
-                <h3 style="margin-left: 16px;">Zermelo Mod Instellingen</h3>
-                <div class="colors">
-                    <div class="colors-list">
-                        <div class="colorPickerDivMain">
-                            <h4>Algemene kleur van zermelo</h4>
-                            <label for="colorPickerMain" class="colorCircle"></label>
-                            <input type="text" id="hexColorInputMain" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
-                            <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerMain" name="color" class="hiddenColorPicker">
-                        </div>
-                        <div class="colorPickerDivGeneral">
-                            <h4>Kleur van de lessen</h4>
-                            <label for="colorPickerGeneral" class="colorCircle"></label>
-                            <input type="text" id="hexColorInputGeneral" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
-                            <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerGeneral" name="color" class="hiddenColorPicker">
-                        </div>
-                        <div class="colorPickerDivExam">
-                            <h4>Kleur van de toetsen</h4>
-                            <label for="colorPickerExam" class="colorCircle"></label>
-                            <input type="text" id="hexColorInputExam" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
-                            <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerExam" name="color" class="hiddenColorPicker">
-                        </div>
-                        <div class="colorPickerDivActivity">
-                            <h4>Kleur van de activiteiten</h4>
-                            <label for="colorPickerActivity" class="colorCircle"></label>
-                            <input type="text" id="hexColorInputActivity" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
-                            <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerActivity" name="color" class="hiddenColorPicker">
-                        </div>
-                    </div>
-                </div>
-                <div class="item" id="saveButton"><div class="icon"> <i class="material-icons">save</i> </div> <div class="label">Instellingen Opslaan</div></div>
-                <div class="item" id="resetButton"><div class="icon"> <i class="material-icons">restart_alt</i> </div> <div class="label">Reset Instellingen</div></div>
-                `;
-          div.className = "menuContent";
-          settingsPage.appendChild(div);
-        } else {
-          console.log("Menu content already exists.");
+          if (menuContents.length < 2) {
+            // If no existing 'menuContent' is found, proceed to create and append the new 'div'
+            var div = document.createElement("div");
+            div.innerHTML = `
+                  <h3 style="margin-left: 16px;">Zermelo Mod Instellingen</h3>
+                  <h4 style="margin-left: 16px;">Kleuren</h4>
+                  <div class="colors">
+                      <div class="colors-list">
+                          <div class="colorPickerDivMain">
+                              <h4>Algemene kleur van zermelo</h4>
+                              <label for="colorPickerMain" class="colorCircle"></label>
+                              <input type="text" id="hexColorInputMain" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
+                              <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerMain" name="color" class="hiddenColorPicker">
+                          </div>
+                          <div class="colorPickerDivGeneral">
+                              <h4>Kleur van de lessen</h4>
+                              <label for="colorPickerGeneral" class="colorCircle"></label>
+                              <input type="text" id="hexColorInputGeneral" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
+                              <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerGeneral" name="color" class="hiddenColorPicker">
+                          </div>
+                          <div class="colorPickerDivExam">
+                              <h4>Kleur van de toetsen</h4>
+                              <label for="colorPickerExam" class="colorCircle"></label>
+                              <input type="text" id="hexColorInputExam" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
+                              <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerExam" name="color" class="hiddenColorPicker">
+                          </div>
+                          <div class="colorPickerDivActivity">
+                              <h4>Kleur van de activiteiten</h4>
+                              <label for="colorPickerActivity" class="colorCircle"></label>
+                              <input type="text" id="hexColorInputActivity" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
+                              <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerActivity" name="color" class="hiddenColorPicker">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="item" id="saveButton"><div class="icon"> <i class="material-icons">save</i> </div> <div class="label">Instellingen Opslaan</div></div>
+                  <div class="item" id="resetButton"><div class="icon"> <i class="material-icons">restart_alt</i> </div> <div class="label">Reset Instellingen</div></div>
+                  <br>
+                  <h4 style="margin-left: 16px;">Menu</h4>
+                  <div class="selectors">
+                      <div class="enabledisable">
+                          <div class="checkbox-wrapper">
+                              <input id="start" type="checkbox" class="promoted-input-checkbox"/>
+                              <svg><use xlink:href="#checkmark-28" /></svg>
+                              <label for="start">
+                                  Start
+                              </label>
+                              <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+                                  <symbol id="checkmark" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-miterlimit="10" fill="none"  d="M22.9 3.7l-15.2 16.6-6.6-7.1">
+                                      </path>
+                                  </symbol>
+                              </svg>
+                          </div>
+                      </div>
+                      <div class="enabledisable">
+                          <div class="checkbox-wrapper">
+                              <input id="mijnRooster" type="checkbox" class="promoted-input-checkbox"/>
+                              <svg><use xlink:href="#checkmark-28" /></svg>
+                              <label for="mijnRooster">
+                                  Mijn rooster
+                              </label>
+                              <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+                                  <symbol id="checkmark" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-miterlimit="10" fill="none"  d="M22.9 3.7l-15.2 16.6-6.6-7.1">
+                                      </path>
+                                  </symbol>
+                              </svg>
+                          </div>
+                      </div>
+                  </div>
+                  `;
+            div.className = "menuContent";
+            settingsPage.appendChild(div);
+          } else {
+            console.log("Menu content already exists.");
+          }
         }
       }
+    
 
       document
         .querySelector("#saveButton")
@@ -204,42 +244,46 @@ function load(modEnabled) {
         });
 
       // After the existing code that sets up the color pickers and labels
-      document
-        .getElementById("hexColorInputMain")
-        .addEventListener("input", function () {
-          console.log(this.value);
-          document.getElementById("colorPickerMain").value = this.value;
-          document.querySelector(
-            ".colorPickerDivMain .colorCircle"
-          ).style.backgroundColor = this.value;
-        });
+      function setData() {
 
-      document
-        .getElementById("hexColorInputGeneral")
-        .addEventListener("input", function () {
-          document.getElementById("colorPickerGeneral").value = this.value;
-          document.querySelector(
-            ".colorPickerDivGeneral .colorCircle"
-          ).style.backgroundColor = this.value;
-        });
+    
+        document
+          .getElementById("hexColorInputMain")
+          .addEventListener("input", function () {
+            console.log(this.value);
+            document.getElementById("colorPickerMain").value = this.value;
+            document.querySelector(
+              ".colorPickerDivMain .colorCircle"
+            ).style.backgroundColor = this.value;
+          });
 
-      document
-        .getElementById("hexColorInputExam")
-        .addEventListener("input", function () {
-          document.getElementById("colorPickerExam").value = this.value;
-          document.querySelector(
-            ".colorPickerDivExam .colorCircle"
-          ).style.backgroundColor = this.value;
-        });
+        document
+          .getElementById("hexColorInputGeneral")
+          .addEventListener("input", function () {
+            document.getElementById("colorPickerGeneral").value = this.value;
+            document.querySelector(
+              ".colorPickerDivGeneral .colorCircle"
+            ).style.backgroundColor = this.value;
+          });
 
-      document
-        .getElementById("hexColorInputActivity")
-        .addEventListener("input", function () {
-          document.getElementById("colorPickerActivity").value = this.value;
-          document.querySelector(
-            ".colorPickerDivActivity .colorCircle"
-          ).style.backgroundColor = this.value;
-        });
+        document
+          .getElementById("hexColorInputExam")
+          .addEventListener("input", function () {
+            document.getElementById("colorPickerExam").value = this.value;
+            document.querySelector(
+              ".colorPickerDivExam .colorCircle"
+            ).style.backgroundColor = this.value;
+          });
+
+        document
+          .getElementById("hexColorInputActivity")
+          .addEventListener("input", function () {
+            document.getElementById("colorPickerActivity").value = this.value;
+            document.querySelector(
+              ".colorPickerDivActivity .colorCircle"
+            ).style.backgroundColor = this.value;
+          });
+      }
     }
 
     document.addEventListener("click", function (event) {
