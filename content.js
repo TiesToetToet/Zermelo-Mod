@@ -3,12 +3,118 @@
 //   console.log("DOM fully loaded and parsed");
 //   addSettings();
 // });
+
+// Step 1: Define the key you want to check
+keys = [
+  {
+    key: "start",
+    label: "Start",
+  },
+  {
+    key: "mijnRooster",
+    label: "Mijn rooster",
+  },
+  {
+    key: "mijnVakken",
+    label: "Mijn vakken",
+  },
+  {
+    key: "mijnKeuzepakket",
+    label: "Mijn keuzepakket",
+  },
+  {
+    key: "mijnGroepen",
+    label: "Mijn groepen",
+  },
+  {
+    key: "mijnCollegas",
+    label: "Mijn collega's",
+  },
+  {
+    key: "mijnDocenten",
+    label: "Mijn docenten",
+  },
+  {
+    key: "alleRoosters",
+    label: "Alle roosters",
+  },
+  {
+    key: "mededelingen",
+    label: "Mededelingen",
+  },
+  {
+    key: "ouderavonden",
+    label: "Ouderavonden",
+  },
+  {
+    key: "eindexamens",
+    label: "Eindexamens",
+  },
+  {
+    key: "portal",
+    label: "Portal",
+  },
+  {
+    key: "appVerversen",
+    label: "App verversen",
+  },
+  {
+    key: "uitloggen",
+    label: "Uitloggen",
+  },
+  {
+    key: "compileren",
+    label: "Compileren",
+  },
+]
 document.onreadystatechange = () => {
   if (document.readyState === "complete") {
     console.log("DOM fully loaded and parsed");
+    let intervalId = setInterval(() => {
+      document.querySelectorAll("path").forEach((path) => {
+        if (path.getAttribute("stroke") === "rgb(132,142,153)") {
+          path.setAttribute("stroke", "var(--mainColor)");
+        }
+      });
+    }, 100); // 100 milliseconds = 0.1 second
+    
+    setTimeout(() => {
+      clearInterval(intervalId); // Stop the interval after 2 seconds
+    }, 2000); // 2000 milliseconds = 2 seconds
+    body = document.querySelector("body");
+    body.style.userSelect = "auto";
     addSettings();
+
   }
 };
+function changeLoader() {
+  animationContainer = document.querySelector("#animationContainer");
+  if (animationContainer) {
+    animationContainer.querySelectorAll("path").forEach((path) => {
+      if (path.getAttribute("stroke") === "rgb(132,142,153)") {
+        path.setAttribute("stroke", "var(--mainColor)");
+      }
+    });
+  }
+}
+document.addEventListener("click", function (event) {
+  try {
+let intervalId = setInterval(() => {
+  document.querySelectorAll("path").forEach((path) => {
+    if (path.getAttribute("stroke") === "rgb(132,142,153)") {
+      path.setAttribute("stroke", "var(--mainColor)");
+    }
+  });
+}, 100); // 100 milliseconds = 0.1 second
+
+setTimeout(() => {
+  clearInterval(intervalId); // Stop the interval after 2 seconds
+}, 2000); // 2000 milliseconds = 2 seconds
+      
+  } catch (error) {
+    console.log("No loader found");
+  }
+});
 function addSettings() {
   let checkInterval = 100; // Check every 100 milliseconds
   let maxDuration = 5000; // Maximum duration to check for
@@ -21,14 +127,32 @@ function addSettings() {
       var menu = menuPage.querySelectorAll(".menuContent")[0];
 
       var items = menu.children;
-      Array.from(items).forEach(function (item) {
-        var label = item.querySelector(".label");
-        if (
-          label.textContent === "Mijn groepen" ||
-          label.textContent === "Portal"
-        ) {
-          var parent = label.parentElement;
-          parent.style.display = "";
+      setExistingMenus();
+      // Array.from(keys).forEach(function (item) {
+      //   // Use item.key as a key in chrome.storage.local
+      //   var key = item.key;
+      //   console.log(key)
+      //   
+      // });
+      Array.from(menu.children).forEach(function (child) {
+        var labelText = child.querySelector(".label").textContent;
+        // Find the corresponding key object in the keys array
+        var keyObject = keys.find(k => k.label === labelText);
+        if (keyObject) {
+          var key = keyObject.key;
+          console.log(key)
+          chrome.storage.local.get([key], function(result) {
+            console.log(result[key])
+            if (result[key]) {
+              // If the value is true, show the item and remove aria-hidden
+              child.style.display = "";
+              child.removeAttribute("aria-hidden");
+            } else {
+              // If the value is false or not set, hide the item and add aria-hidden="true"
+              child.style.display = "none";
+              child.setAttribute("aria-hidden", "true");
+            }
+          });
         }
       });
 
@@ -46,7 +170,33 @@ function addSettings() {
 }
 // mijn groepen [4]
 // portal [11]
-let modEnabled;
+
+function setExistingMenus() {
+  menu = document.getElementsByClassName("menuContent")[0];
+  function findMenuItemByLabel(label) {
+    return Array.from(menu.children).find((item) => {
+      const itemLabel = item.querySelector(".label");
+      return itemLabel.textContent === label;
+    });
+  }
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i].key;
+    chrome.storage.local.get([key], function (result) {
+      if (result[key] === undefined) {
+        item = findMenuItemByLabel(keys[i].label)
+        var active = true
+        if (item.style.display === "none") {
+          active = false
+        } else {
+          active = true
+        }
+        chrome.storage.local.set({ [key]: active });
+      }
+    });
+  }
+}
+
 
 chrome.storage.local.get(["enabled"]).then((result) => {
   modEnabled = result.enabled;
@@ -57,6 +207,8 @@ function load(modEnabled) {
   if (modEnabled) {
     function settings() {
       addMenu();
+      setData();
+      
       
       function addMenu() {
         chrome.storage.local.get(
@@ -128,6 +280,17 @@ function load(modEnabled) {
             }
           }
         );
+        
+        keys.forEach(function(item) {
+          chrome.storage.local.get([item.key], function(result) {
+            // Assuming the result for each key is either true or false
+            var checkbox = document.getElementById(item.key).querySelector('input[type="checkbox"]');
+            console.log(result[item.key])
+            if (checkbox) {
+              checkbox.checked = !!result[item.key]; // Convert the result to boolean and set the checkbox
+            }
+          });
+        });
 
         var settingsPage = document.getElementsByClassName("settingsPage")[0];
         if (settingsPage != null) {
@@ -139,7 +302,9 @@ function load(modEnabled) {
             var div = document.createElement("div");
             div.innerHTML = `
                   <h3 style="margin-left: 16px;">Zermelo Mod Instellingen</h3>
+                  <br>
                   <h4 style="margin-left: 16px;">Kleuren</h4>
+                  <h5 style="margin-left: 16px;">Kies de kleuren die jij binnen zermelo wilt hebben</h5>
                   <div class="colors">
                       <div class="colors-list">
                           <div class="colorPickerDivMain">
@@ -168,42 +333,119 @@ function load(modEnabled) {
                           </div>
                       </div>
                   </div>
-                  <div class="item" id="saveButton"><div class="icon"> <i class="material-icons">save</i> </div> <div class="label">Instellingen Opslaan</div></div>
-                  <div class="item" id="resetButton"><div class="icon"> <i class="material-icons">restart_alt</i> </div> <div class="label">Reset Instellingen</div></div>
                   <br>
                   <h4 style="margin-left: 16px;">Menu</h4>
+                  <h5 style="margin-left: 16px;">Kies welke menu items jij wilt zien</h5>
                   <div class="selectors">
-                      <div class="enabledisable">
-                          <div class="checkbox-wrapper">
-                              <input id="start" type="checkbox" class="promoted-input-checkbox"/>
-                              <svg><use xlink:href="#checkmark-28" /></svg>
-                              <label for="start">
-                                  Start
-                              </label>
-                              <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-                                  <symbol id="checkmark" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-miterlimit="10" fill="none"  d="M22.9 3.7l-15.2 16.6-6.6-7.1">
-                                      </path>
-                                  </symbol>
-                              </svg>
-                          </div>
+                      <div class="menuButton">
+                          <label class="switch" id="start">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="start">Start</label>
                       </div>
-                      <div class="enabledisable">
-                          <div class="checkbox-wrapper">
-                              <input id="mijnRooster" type="checkbox" class="promoted-input-checkbox"/>
-                              <svg><use xlink:href="#checkmark-28" /></svg>
-                              <label for="mijnRooster">
-                                  Mijn rooster
-                              </label>
-                              <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-                                  <symbol id="checkmark" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-miterlimit="10" fill="none"  d="M22.9 3.7l-15.2 16.6-6.6-7.1">
-                                      </path>
-                                  </symbol>
-                              </svg>
-                          </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mijnRooster">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mijnRooster">Mijn rooster</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mijnVakken">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mijnVakken">Mijn vakken</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mijnKeuzepakket">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mijnKeuzepakket">Mijn keuzepakket</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mijnGroepen">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mijnGroepen">Mijn groepen</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mijnCollegas">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mijnCollegas">Mijn collega's</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mijnDocenten">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mijnDocenten">Mijn docenten</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="alleRoosters">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="alleRoosters">Alle roosters</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="mededelingen">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="mededelingen">Mededelingen</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="ouderavonden">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="ouderavonden">Ouderavonden</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="eindexamens">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="eindexamens">Eindexamens</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="portal">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="portal">Portal</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="appVerversen">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="appVerversen">App verversen</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="uitloggen">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="uitloggen">Uitloggen</label>
+                      </div>
+                      <div class="menuButton">
+                          <label class="switch" id="compileren">
+                              <input type="checkbox" checked>
+                              <span class="slider round"></span>
+                          </label>
+                          <label for="compileren">Compileren</label>
                       </div>
                   </div>
+                  <div class="item" id="saveButton"><div class="icon"> <i class="material-icons">save</i> </div> <div class="label">Instellingen Opslaan</div></div>
+                  <div class="item" id="resetButton"><div class="icon"> <i class="material-icons">restart_alt</i> </div> <div class="label">Reset Instellingen</div></div>
+                  <div class="bottomMargin"></div>
                   `;
             div.className = "menuContent";
             settingsPage.appendChild(div);
@@ -226,8 +468,37 @@ function load(modEnabled) {
                 .value,
             },
           });
+          const settingsIds = [
+            "start", "mijnRooster", "mijnVakken", "mijnKeuzepakket", "mijnGroepen", "mijnCollegas", "mijnDocenten", "alleRoosters", "mededelingen", "ouderavonden", "eindexamens", "portal", "appVerversen", "uitloggen", "compileren"
+          ];
+          
+                // Function to update Chrome storage with the current state of all checkboxes
+          function updateChromeStorage() {
+            const settings = {};
+            settingsIds.forEach(id => {
+              const element = document.getElementById(id);
+              if (element) {
+                settings[id] = element.querySelector("input").checked;
+              } else {
+                console.error(`Element with ID ${id} not found.`);
+              }
+            });
+          
+            // Using callbacks
+            for (const key in settings) {
+              chrome.storage.local.set({ [key]: settings[key] }, function() {
+                console.log(`Saved ${key} as ${settings[key]}`);
+              });
+            }
+          }
+
+          updateChromeStorage();
+          
           location.reload();
         });
+
+      // List of all settings corresponding to checkboxes
+        
 
       document
         .querySelector("#resetButton")
@@ -240,8 +511,27 @@ function load(modEnabled) {
               colorActivity: "#268e26",
             },
           });
+          chrome.storage.local.set({
+            start: undefined,
+            mijnRooster: undefined,
+            mijnVakken: undefined,
+            mijnKeuzepakket: undefined,
+            mijnGroepen: undefined,
+            mijnCollegas: undefined,
+            mijnDocenten: undefined,
+            alleRoosters: undefined,
+            mededelingen: undefined,
+            ouderavonden: undefined,
+            eindexamens: undefined,
+            portal: undefined,
+            appVerversen: undefined,
+            uitloggen: undefined,
+            compileren: undefined,
+          })
           location.reload();
         });
+
+      
 
       // After the existing code that sets up the color pickers and labels
       function setData() {
@@ -390,10 +680,20 @@ function load(modEnabled) {
         "--generalColorLight",
         generalLightColor
       );
+      // veryLightColor = toBrightnessValue(colorGeneral, 300);
+      // document.documentElement.style.setProperty(
+      //   "--veryLightGeneralColor",
+      //   veryLightColor
+      // );
     }
 
     function changeExamColors(examColor) {
       document.documentElement.style.setProperty("--examColor", colorExam);
+      // veryLightExamColor = toBrightnessValue(colorExam, 300);
+      // document.documentElement.style.setProperty(
+      //   "--veryLightExamColor",
+      //   veryLightExamColor
+      // );
     }
 
     function changeActivityColors(activityColor) {
@@ -406,6 +706,11 @@ function load(modEnabled) {
         "--activityLightColor",
         activityLightColor
       );
+      // veryLightActivityColor = toBrightnessValue(colorActivity, 300);
+      // document.documentElement.style.setProperty(
+      //   "--veryLightActivityColor",
+      //   veryLightActivityColor
+      // );
     }
 
     const adjust = (col, amt) => {
@@ -672,6 +977,7 @@ function load(modEnabled) {
         parentElement.replaceChild(svgNode, image);
       }
     }
+
   } else {
     document.documentElement.style.setProperty("--mainColor", "#2c3e50");
     document.documentElement.style.setProperty("--generalColor", "#7b7bb3");
