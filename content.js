@@ -127,34 +127,38 @@ function addSettings() {
       var menu = menuPage.querySelectorAll(".menuContent")[0];
 
       var items = menu.children;
-      setExistingMenus();
+      let allow = setExistingMenus();
+      // console.log("continue")
       // Array.from(keys).forEach(function (item) {
       //   // Use item.key as a key in chrome.storage.local
       //   var key = item.key;
       //   console.log(key)
       //   
       // });
-      Array.from(menu.children).forEach(function (child) {
-        var labelText = child.querySelector(".label").textContent;
-        // Find the corresponding key object in the keys array
-        var keyObject = keys.find(k => k.label === labelText);
-        if (keyObject) {
-          var key = keyObject.key;
-          console.log(key)
-          chrome.storage.local.get([key], function(result) {
-            console.log(result[key])
-            if (result[key]) {
-              // If the value is true, show the item and remove aria-hidden
-              child.style.display = "";
-              child.removeAttribute("aria-hidden");
-            } else {
-              // If the value is false or not set, hide the item and add aria-hidden="true"
-              child.style.display = "none";
-              child.setAttribute("aria-hidden", "true");
-            }
-          });
-        }
-      });
+      if (allow) {
+
+        Array.from(menu.children).forEach(function (child) {
+          var labelText = child.querySelector(".label").textContent;
+          // Find the corresponding key object in the keys array
+          var keyObject = keys.find(k => k.label === labelText);
+          if (keyObject) {
+            var key = keyObject.key;
+            chrome.storage.local.get([key], function(result) {
+              console.log(key)
+              console.log(result[key])
+              if (result[key]) {
+                // If the value is true, show the item and remove aria-hidden
+                child.style.display = "";
+                child.removeAttribute("aria-hidden");
+              } else {
+                // If the value is false or not set, hide the item and add aria-hidden="true"
+                child.style.display = "none";
+                child.setAttribute("aria-hidden", "true");
+              }
+            });
+          }
+        });
+      }
 
       clearInterval(checkExist); // Stop checking if menuPage is found
     } else if (elapsed >= maxDuration) {
@@ -172,6 +176,7 @@ function addSettings() {
 // portal [11]
 
 function setExistingMenus() {
+  // console.log("First")
   menu = document.getElementsByClassName("menuContent")[0];
   function findMenuItemByLabel(label) {
     return Array.from(menu.children).find((item) => {
@@ -184,17 +189,18 @@ function setExistingMenus() {
     const key = keys[i].key;
     chrome.storage.local.get([key], function (result) {
       if (result[key] === undefined) {
+        // console.log(keys[i])
         item = findMenuItemByLabel(keys[i].label)
-        var active = true
+        // console.log(item.style.display)
         if (item.style.display === "none") {
-          active = false
+          chrome.storage.local.set({ [key]: false });
         } else {
-          active = true
+          chrome.storage.local.set({ [key]: true });
         }
-        chrome.storage.local.set({ [key]: active });
       }
     });
   }
+  return true;
 }
 
 
@@ -219,17 +225,28 @@ function load(modEnabled) {
               colorGeneral: "#7b7bb3",
               colorExam: "#e8cb22",
               colorActivity: "#268e26",
+              darkMode: false,
             },
           },
           function (data) {
             const options = data.options;
             hoverColor = adjust(colorMain, 50);
             colorMain = options.colorMain;
+            darkMode = options.darkMode;
+            console.log("Darkmode: " + darkMode);
             console.log(colorMain);
             if (getRelativeLuminance(hexToRgb(colorMain)) >= 240) {
-              iconColour = adjust(colorMain, -170);
+              if (darkMode) {
+                iconColour = adjust(colorMain, -90);
+              } else {
+                iconColour = adjust(colorMain, -170);
+              }
             } else if (getRelativeLuminance(hexToRgb(colorMain)) >= 160) {
-              iconColour = adjust(colorMain, -110);
+              if (darkMode) {
+                iconColour = adjust(colorMain, -70);
+              } else {
+                iconColour = adjust(colorMain, -110);
+              }
             } else {
               iconColour = "#5b5b5b";
             }
@@ -257,6 +274,11 @@ function load(modEnabled) {
                 hex: "hexColorInputActivity",
                 label: "colorPickerDivActivity",
               },
+              // colorBackground: {
+              //   picker: "colorPickerBackground",
+              //   hex: "hexColorInputBackground",
+              //   label: "colorPickerDivBackground",
+              // },
             };
   
             for (const key in options) {
@@ -278,6 +300,8 @@ function load(modEnabled) {
                 }
               }
             }
+
+            document.getElementById("colorPickerBackground").checked = options.darkMode;
           }
         );
         
@@ -330,6 +354,14 @@ function load(modEnabled) {
                               <label for="colorPickerActivity" class="colorCircle"></label>
                               <input type="text" id="hexColorInputActivity" name="hexColor" pattern="#?[0-9A-Fa-f]{6}" title="Hex color code (e.g., #123ABC or 123ABC)">
                               <input type="color" oninput="this.parentElement.children[1].style.backgroundColor = this.value; this.parentElement.children[2].value = this.value" id="colorPickerActivity" name="color" class="hiddenColorPicker">
+                          </div>
+                          <div class="darkModeSwitch">
+                              <h4>Donkere modus</h4>
+                              <label class="switch" id="darkMode">
+                                  <input type="checkbox" id="colorPickerBackground">
+                                  <span class="slider round"></span>
+                              </label>
+                              <label for="darkMode">Donkere modus</label>
                           </div>
                       </div>
                   </div>
@@ -466,6 +498,8 @@ function load(modEnabled) {
               colorExam: document.getElementById("colorPickerExam").value,
               colorActivity: document.getElementById("colorPickerActivity")
                 .value,
+              darkMode: document.getElementById("colorPickerBackground")
+                .checked,
             },
           });
           const settingsIds = [
@@ -509,6 +543,7 @@ function load(modEnabled) {
               colorGeneral: "#7b7bb3",
               colorExam: "#e8cb22",
               colorActivity: "#268e26",
+              darkMode: false,
             },
           });
           chrome.storage.local.set({
@@ -573,6 +608,13 @@ function load(modEnabled) {
               ".colorPickerDivActivity .colorCircle"
             ).style.backgroundColor = this.value;
           });
+
+        // document.getElementById("hexColorInputBackground").addEventListener("input", function () {
+        //   document.getElementById("colorPickerBackground").value = this.value;
+        //   document.querySelector(
+        //     ".colorPickerDivBackground .colorCircle"
+        //   ).style.backgroundColor = this.value;
+        // })
       }
     }
 
@@ -600,6 +642,7 @@ function load(modEnabled) {
     var colorGeneral;
     var colorExam;
     var colorActivity;
+    var darkMode
 
     chrome.storage.local.get(
       {
@@ -609,6 +652,7 @@ function load(modEnabled) {
           colorGeneral: "#7b7bb3",
           colorExam: "#e8cb22",
           colorActivity: "#268e26",
+          darkMode: false,
         },
       },
       function (data) {
@@ -618,26 +662,38 @@ function load(modEnabled) {
         console.log("colorGeneral:", options.colorGeneral);
         console.log("colorExam:", options.colorExam);
         console.log("colorActivity:", options.colorActivity);
+        console.log("dark mode: ", options.darkMode);
         colorMain = options.colorMain;
         colorGeneral = options.colorGeneral;
         colorExam = options.colorExam;
         colorActivity = options.colorActivity;
+        darkMode = options.darkMode;
         changeMainColors(colorMain);
         changeGeneralColors(colorGeneral);
         changeExamColors(colorExam);
         changeActivityColors(colorActivity);
+        changeBackgroundColors(darkMode);
         changeLogo(colorMain);
+        addViewPassword()
       }
     );
 
     function changeMainColors(mainColor) {
       console.log(colorMain);
       document.documentElement.style.setProperty("--mainColor", colorMain);
-      // Existing conditions to adjust icon color based on luminance
+      // Dark mode-aware icon color calculation
       if (getRelativeLuminance(hexToRgb(colorMain)) >= 240) {
-        iconColour = adjust(colorMain, -170);
+        if (darkMode) {
+          iconColour = adjust(colorMain, -90);
+        } else {
+          iconColour = adjust(colorMain, -170);
+        }
       } else if (getRelativeLuminance(hexToRgb(colorMain)) >= 160) {
-        iconColour = adjust(colorMain, -110);
+        if (darkMode) {
+          iconColour = adjust(colorMain, -70);
+        } else {
+          iconColour = adjust(colorMain, -110);
+        }
       } else {
         iconColour = "#5b5b5b";
       }
@@ -654,8 +710,19 @@ function load(modEnabled) {
 
       // Continue with setting the main text color
       mainTextColor = toBrightnessValue(colorMain, 200);
+      backgroundColor = "#000000"
 
-      hoverColor = adjust(colorMain, 50);
+      if (darkMode) {
+        hoverColor = adjust(colorMain, -50);
+        hoverBackgroundColor = "#191c1fff";
+      } else {
+        hoverColor = adjust(colorMain, 50);
+        hoverBackgroundColor = "#e0e0e0";
+      }
+
+
+
+
 
       document.documentElement.style.setProperty("--iconColor", iconColour);
       document.documentElement.style.setProperty("--darkMainColor", iconColour);
@@ -667,7 +734,10 @@ function load(modEnabled) {
         "--mainHoverColor",
         hoverColor
       );
-      // Step 1: Retrieve the <img> element
+      document.documentElement.style.setProperty(
+        "--mainHoverBackgroundColor",
+        hoverBackgroundColor
+      );
     }
 
     function changeGeneralColors(generalColor) {
@@ -680,15 +750,50 @@ function load(modEnabled) {
         "--generalColorLight",
         generalLightColor
       );
-      // veryLightColor = toBrightnessValue(colorGeneral, 300);
-      // document.documentElement.style.setProperty(
-      //   "--veryLightGeneralColor",
-      //   veryLightColor
-      // );
+      veryLightColor = toBrightnessValue(colorGeneral, 300);
+      document.documentElement.style.setProperty(
+        "--veryLightGeneralColor",
+        `${veryLightColor}80`
+      );
+      // Generate subtle background color for appointment blocks
+      generalBackgroundColor = `${colorGeneral}28`; // 28 = ~16% opacity
+      document.documentElement.style.setProperty(
+        "--generalColorBackground",
+        generalBackgroundColor
+      );
+      generalBackgroundDashed = `${colorGeneral}20`; // 20 = ~12% opacity for dashed
+      document.documentElement.style.setProperty(
+        "--generalColorBackgroundDashed",
+        generalBackgroundDashed
+      );
+      // Generate text color for general appointments
+      generalTextColor = adjust(colorGeneral, -30); // Make it darker for better readability
+      document.documentElement.style.setProperty(
+        "--generalTextColor",
+        generalTextColor
+      );
     }
 
     function changeExamColors(examColor) {
       document.documentElement.style.setProperty("--examColor", colorExam);
+      // Generate subtle background color for exam appointment blocks
+      examBackgroundColor = `${colorExam}28`; // 28 = ~16% opacity
+      document.documentElement.style.setProperty(
+        "--examColorBackground",
+        examBackgroundColor
+      );
+      // Generate text color for exam appointments
+      examTextColor = adjust(colorExam, -50); // Make it darker for better readability
+      document.documentElement.style.setProperty(
+        "--examTextColor",
+        examTextColor
+      );
+      // Generate text color for exam appointments
+      examTextColor = adjust(colorExam, -50); // Make it darker for better readability
+      document.documentElement.style.setProperty(
+        "--examTextColor",
+        examTextColor
+      );
       // veryLightExamColor = toBrightnessValue(colorExam, 300);
       // document.documentElement.style.setProperty(
       //   "--veryLightExamColor",
@@ -705,6 +810,65 @@ function load(modEnabled) {
       document.documentElement.style.setProperty(
         "--activityLightColor",
         activityLightColor
+      );
+      // Generate subtle background color for activity appointment blocks
+      activityBackgroundColor = `${colorActivity}28`; // 28 = ~16% opacity
+      document.documentElement.style.setProperty(
+        "--activityColorBackground",
+        activityBackgroundColor
+      );
+      // Generate text color for activity appointments
+      activityTextColor = adjust(colorActivity, -40); // Make it darker for better readability
+      document.documentElement.style.setProperty(
+        "--activityTextColor",
+        activityTextColor
+      );
+      // Generate text color for activity appointments
+      activityTextColor = adjust(colorActivity, -40); // Make it darker for better readability
+      document.documentElement.style.setProperty(
+        "--activityTextColor",
+        activityTextColor
+      );
+      // veryLightActivityColor = toBrightnessValue(colorActivity, 300);
+      // document.documentElement.style.setProperty(
+      //   "--veryLightActivityColor",
+      //   veryLightActivityColor
+      // );
+    }
+    function changeBackgroundColors(darkMode) {
+      let backgroundColor;
+      let backgroundColorDarker
+      let iconBackground;
+      let normalTextColour;
+      if (darkMode) {
+        backgroundColor = "#1f262e";
+        backgroundColorDarker = "#1d2129"
+        iconBackground = "#2c3e50";
+        normalTextColour = "#eaeaea"
+      } else {
+        backgroundColor = "#ffffff"
+        backgroundColorDarker = "#f6f8fa"
+        iconBackground = "#E5E5E5"
+        normalTextColour = "#000000"
+      }
+      document.documentElement.style.setProperty(
+        "--backgroundColor",
+        backgroundColor
+      );
+
+      document.documentElement.style.setProperty(
+        "--backgroundColorDarker",
+        backgroundColorDarker
+      );
+
+      document.documentElement.style.setProperty(
+        "--iconBackground",
+        iconBackground
+      );
+
+      document.documentElement.style.setProperty(
+        "--normalTextColour",
+        normalTextColour
       );
       // veryLightActivityColor = toBrightnessValue(colorActivity, 300);
       // document.documentElement.style.setProperty(
@@ -978,6 +1142,39 @@ function load(modEnabled) {
       }
     }
 
+function addViewPassword() {
+  let input = document.getElementById("password");
+  let container = document.createElement("div");
+  container.style.position = "relative";
+  // Move the input into the container
+  input.parentNode.insertBefore(container, input);
+  container.appendChild(input);
+
+  // Create and style the toggle icon
+  let toggleIcon = document.createElement("span");
+  toggleIcon.textContent = "visibility_off"; // Using an emoji as an example; you can use an actual icon
+  toggleIcon.style.cursor = "pointer";
+  toggleIcon.style.position = "absolute";
+  toggleIcon.style.right = "10px"; // Adjust as needed
+  toggleIcon.style.top = "40%";
+  toggleIcon.style.transform = "translateY(-50%)";
+  toggleIcon.classList.add("material-icons")
+
+  // Append the icon to the container
+  container.appendChild(toggleIcon);
+
+  // Add click event listener to toggle password visibility
+  toggleIcon.addEventListener("click", function() {
+    if (input.type === "password") {
+      input.type = "text";
+      toggleIcon.textContent = "visibility"; // Change icon or style as needed to indicate visibility
+    } else {
+      input.type = "password";
+      toggleIcon.textContent = "visibility_off"; // Change back the icon or style
+    }
+  });
+}
+
   } else {
     document.documentElement.style.setProperty("--mainColor", "#2c3e50");
     document.documentElement.style.setProperty("--generalColor", "#7b7bb3");
@@ -995,5 +1192,18 @@ function load(modEnabled) {
       "#74b474"
     );
     document.documentElement.style.setProperty("--darkMainColor", "#25323f");
+    // Default background colors for appointment blocks
+    document.documentElement.style.setProperty("--generalColorBackground", "#7b7bb328");
+    document.documentElement.style.setProperty("--generalColorBackgroundDashed", "#7b7bb320");
+    document.documentElement.style.setProperty("--examColorBackground", "#e8cb2228");
+    document.documentElement.style.setProperty("--activityColorBackground", "#268e2628");
+    // Default text colors for appointment blocks
+    document.documentElement.style.setProperty("--generalTextColor", "#5a5a8a");
+    document.documentElement.style.setProperty("--examTextColor", "#b8a01c");
+    document.documentElement.style.setProperty("--activityTextColor", "#1e6b1e");
+    // Default text colors for appointment blocks
+    document.documentElement.style.setProperty("--generalTextColor", "#5a5a8a");
+    document.documentElement.style.setProperty("--examTextColor", "#b8a01c");
+    document.documentElement.style.setProperty("--activityTextColor", "#1e6b1e");
   }
 }

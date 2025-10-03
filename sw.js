@@ -7,6 +7,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
       colorExam: "#e8cb22",
       colorActivity: "#268e26",
       enabled: true,
+      backgroundColor: "#ffffff",
     });
   }
 });

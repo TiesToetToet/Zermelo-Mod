@@ -1,3 +1,28 @@
+@font-face {
+    font-family: "Material Icons";
+    font-style: normal;
+    font-weight: 400;
+    src: url(/app/fonts/MaterialIcons-Regular.eot); /* For IE6-8 */
+    src: local("Material Icons"), local("MaterialIcons-Regular"), url(/app/fonts/MaterialIcons-Regular.woff2) format("woff2"), url(/app/fonts/MaterialIcons-Regular.woff) format("woff"), url(/app/fonts/MaterialIcons-Regular.ttf) format("truetype");
+  }
+.material-icons {
+    font-family: "Material Icons";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "liga";
+}
+
 .navBar,
 .swipeSchedulePage .scheduleTitle,
 .tabs .tabBar,
@@ -39,7 +64,13 @@ h2,
     color: var(--mainTextColor) !important;
 }
 .menuPage .item .icon,
-.settingsPage .item .icon {
+.settingsPage .item .icon,
+.timeStart,
+.timeEnd,
+.timeslot,
+.weekSchedule .time, 
+.weekSchedule .timeSlot,
+.weekSchedule .day {
     color: var(--iconColor) !important;
 }
 .swipeSchedulePage .scheduleTitle .dayWeek {
@@ -63,10 +94,13 @@ h2,
 .compactAppointmentItem .appointmentBlock,
 .appointmentChoiceItem .appointmentBlock,
 .appointmentItem .appointmentBlock {
-    border: 1px solid var(--generalColorLight) !important;
+    background-color: var(--generalColorBackground) !important;
+    border: none !important;
 }
 .appointmentItem.notEnrolledFixed .appointmentBlock {
-    border: 1px dashed var(--generalColorLight) !important;
+    background-color: var(--generalColorBackgroundDashed) !important;
+    border: none !important;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, var(--generalColorLight) 5px, var(--generalColorLight) 7px) !important;
 }
 .compactAppointmentItem.selectedItem .appointmentBlock,
 .appointmentItem.selectedItem .appointmentBlock {
@@ -80,7 +114,8 @@ h2,
 
 .appointmentItem.exam .appointmentBlock,
 .compactAppointmentItem.exam .appointmentBlock {
-    border: 1px solid var(--examColor) !important;
+    background-color: var(--examColorBackground) !important;
+    border: none !important;
 }
 .appointmentItem.selectedItem.exam .appointmentBlock,
 .compactAppointmentItem.selectedItem.exam .appointmentBlock {
@@ -95,12 +130,102 @@ h2,
 
 .compactAppointmentItem.activity .appointmentBlock,
 .appointmentItem.activity .appointmentBlock {
-    border: 1px solid var(--activityLightColor) !important;
+    background-color: var(--activityColorBackground) !important;
+    border: none !important;
 }
 .appointmentItem.selectedItem.activity .appointmentBlock,
 .compactAppointmentItem.selectedItem.activity .appointmentBlock {
     background-color: var(--veryLightActivityColor) !important;
 }
+
+/* Text colors for different appointment types */
+.appointmentItem .appointmentBlock,
+.compactAppointmentItem .appointmentBlock {
+    color: var(--generalTextColor) !important;
+}
+
+.appointmentItem.exam .appointmentBlock,
+.compactAppointmentItem.exam .appointmentBlock {
+    color: var(--examTextColor) !important;
+}
+
+.appointmentItem.activity .appointmentBlock,
+.compactAppointmentItem.activity .appointmentBlock {
+    color: var(--activityTextColor) !important;
+}
+
+.choiceDetail, .responsive .masterDetail, .daySchedule .dayTitle, .swipeSchedulePage, .daySchedule .updated, .courseScheduleOverview, .myCoursesPage,
+.weekHeader, .subjectSelectionFormPage, .myGroupAndStudentListPage, .studentProfile, .myTeacherListPage, .settingsPage, .parentSplashPage, .myColleagueListPage, .allSchedulesPage, 
+.ptnListPage, .appointmentChoiceItem .notEnrolledCanEnrollIcon, .appointmentChoiceItem .enrolledCanSwitchIcon, .appointmentChoiceItem .enrolledCanUnenrollIcon, .appointmentChoiceItem .conflictEnabledIcon, .appointmentChoiceItem .conflictEnrolledEnabledIcon,
+.appointmentChoiceItem .notEnrolledLockedIcon, .appointmentChoiceItem .notEnrolledDisallowedIcon, .appointmentChoiceItem .enrolledFixedIcon, .appointmentChoiceItem .mandatoryWithOptionalsIcon, .appointmentChoiceItem .conflictEnrolledDisabledIcon, .appointmentChoiceItem .replacementIcon {
+    background-color: #ffffff00 !important;
+}
+
+body, .responsive .menu, .subjectSelectionWidget .body, .subjectSelectionWidget .infoTop, .responsive.showPopup .popup, .subjectSelectionMadeChoices .bottom {
+    background-color: var(--backgroundColor) !important;
+}
+.weekHeader, .daySchedule .dayTitle, .subjectSelectionPage, .myGroupAndStudentListPage .groupListHeader, .announcementPage, .weekSchedule .dayTitle, .weekSchedule .updated {
+    background-color: var(--backgroundColorDarker) !important;
+}
+.personListItem {
+    border-bottom: 1px solid var(--backgroundColorDarker) !important
+}
+#hexColorInputActivity, #hexColorInputExam, #hexColorInputGeneral, #hexColorInputMain {
+    color: var(--normalTextColour) !important;
+}
+.subjectSelectionWidget.studentApproves .studentApprovesIcon {
+    background-color: #81C784 !important;
+}
+
+.subjectSelectionWidget .icon, .slider {
+    background-color: var(--iconBackground) !important;
+}
+
+.appointmentItem .appointmentBlock,
+.compactAppointmentItem .appointmentBlock,
+.appointmentChoiceItem .appointmentBlock {
+    border-radius: 6px !important;
+}
+
+/* Override border-radius when appointmentBar is present AND visible */
+.appointmentItem:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 7px solid var(--generalColor) !important;
+}
+
+.compactAppointmentItem:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 6px solid var(--generalColor) !important;
+}
+
+.appointmentChoiceItem .appointmentBlock {
+    border-left: 7px solid var(--generalColor) !important;
+}
+
+.appointmentItem.exam:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 7px solid var(--examColor) !important;
+}
+
+.compactAppointmentItem.exam:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 6px solid var(--examColor) !important;
+}
+
+.appointmentItem.activity:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 7px solid var(--activityColor) !important;
+}
+
+.compactAppointmentItem.activity:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 6px solid var(--activityColor) !important;
+}
+
+
+
+.appointmentItem .appointmentBar, .compactAppointmentItem .appointmentBar, .appointmentChoiceItem .appointmentBar {
+    display: none;
+}
+
+.menuPage .item:hover {
+    background-color: var(--mainHoverBackgroundColor) !important;
+}
+
 
 .item.custom {
     margin: 0px;
@@ -240,11 +365,11 @@ input[name="hexColor"] {
   }
   
   input:checked + .slider {
-    background-color: var(--iconColor);
+    background-color: var(--mainColor);
   }
   
   input:focus + .slider {
-    box-shadow: 0 0 1px var(--iconColor);
+    box-shadow: 0 0 1px var(--mainColor);
   }
   
   input:checked + .slider:before {
@@ -261,3 +386,35 @@ input[name="hexColor"] {
   .slider.round:before {
     border-radius: 50%;
   }
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--backgroundColor);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--iconColor);
+  border-radius: 6px;
+  border: 2px solid var(--backgroundColor);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mainHoverColor);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--backgroundColor);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--iconColor) var(--backgroundColor);
+}
+
