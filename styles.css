@@ -107,6 +107,18 @@ h2,
     background-color: var(--veryLightGeneralColor) !important;
 }
 
+.compactAppointmentItem.cancelled .appointmentBlock,
+.appointmentChoiceItem.cancelled .appointmentBlock,
+.appointmentItem.cancelled .appointmentBlock {
+    background-color: #e8727240 !important;
+    border: none !important;
+}
+
+.compactAppointmentItem.selectedItem.cancelled .appointmentBlock,
+.appointmentItem.selectedItem.cancelled .appointmentBlock {
+    background-color: #f9bcbc60 !important;
+}
+
 .compactAppointmentItem.exam .appointmentBar,
 .appointmentItem.exam .appointmentBar {
     background-color: var(--examColor) !important;
@@ -117,10 +129,10 @@ h2,
     background-color: var(--examColorBackground) !important;
     border: none !important;
 }
+
 .appointmentItem.selectedItem.exam .appointmentBlock,
 .compactAppointmentItem.selectedItem.exam .appointmentBlock {
     background-color: var(--veryLightExamColor) !important;
-
 }
 
 .compactAppointmentItem.activity .appointmentBar,
@@ -137,6 +149,8 @@ h2,
 .compactAppointmentItem.selectedItem.activity .appointmentBlock {
     background-color: var(--veryLightActivityColor) !important;
 }
+
+
 
 /* Text colors for different appointment types */
 .appointmentItem .appointmentBlock,
@@ -216,10 +230,18 @@ body, .responsive .menu, .subjectSelectionWidget .body, .subjectSelectionWidget 
     border-left: 6px solid var(--activityColor) !important;
 }
 
+.appointmentItem.cancelled:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 7px solid #df4242 !important;
+}
+
+.compactAppointmentItem.cancelled:has(.appointmentBar):not(.notEnrolledCanEnroll):not(.notEnrolledLocked):not(.notEnrolledDisallowed) .appointmentBlock {
+    border-left: 6px solid #df4242 !important;
+}
 
 
-.appointmentItem .appointmentBar, .compactAppointmentItem .appointmentBar, .appointmentChoiceItem .appointmentBar {
-    display: none;
+
+.appointmentItem .appointmentBar, .compactAppointmentItem .appointmentBar, .appointmentChoiceItem .appointmentBar, .appointmentItem.free.cancelled:not(.multiple).enrolledFixed .appointmentBar, .appointmentItem.free.cancelled:not(.multiple).enrolledMandatory .appointmentBar, .appointmentItem.free.cancelled:not(.multiple).enrolledCanSwitch .appointmentBar, .appointmentItem.free.cancelled:not(.multiple).enrolledCanUnenroll .appointmentBar {
+    display: none !important;
 }
 
 .menuPage .item:hover {
